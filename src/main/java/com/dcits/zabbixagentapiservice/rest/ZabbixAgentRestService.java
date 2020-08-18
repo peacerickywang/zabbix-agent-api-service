@@ -55,6 +55,7 @@ public class ZabbixAgentRestService {
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
+            return "登录失败，服务器连接认证失败！";
         }
         // 获取SiteResource接口的实现
         SiteResource site = ServiceFactory.getService(SiteResource.class, clientProvider);
