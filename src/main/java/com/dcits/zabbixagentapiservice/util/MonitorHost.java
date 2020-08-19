@@ -39,6 +39,9 @@ public class MonitorHost implements Action{
         if (!resp.getErrorCode().equals(ERROR_CODE)) {
             logger.error("QUERY Host info FAILED");
         } else {
+            if (resp.getResult().getList().size()==0){
+                return String.valueOf(0);
+            }
             List<String> metricId = new ArrayList<String>();
             metricId.add(metric);
             // metricId.add("cpu_usage");

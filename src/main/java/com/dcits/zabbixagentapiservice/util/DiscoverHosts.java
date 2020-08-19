@@ -48,10 +48,10 @@ public class DiscoverHosts implements Action {
                     jsonArray.add(jsonObject);
                 }
                 result.add("data", jsonArray);
-                logger.info(JSON.toJSONString(result));
+                logger.info(jsonArray.toString());
             }
         }
-        return JSON.toJSONString(result);
+        return result.toString();
     }
 
 }

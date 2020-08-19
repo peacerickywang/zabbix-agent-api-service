@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.alibaba.fastjson.JSON;
 import com.huawei.esdk.fusioncompute.local.ServiceFactory;
 import com.huawei.esdk.fusioncompute.local.model.ClientProviderBean;
 import com.huawei.esdk.fusioncompute.local.model.FCSDKResponse;
@@ -39,6 +40,10 @@ public class MonitorVM implements Action {
         if (!response.getErrorCode().equals(ERROR_CODE)) {
             logger.error("QUERY VM info FAILED");
         } else {
+            if (response.getResult().getList().size()==0){
+                return String.valueOf(0);
+            }
+            logger.info("VM INFO: "+ JSON.toJSONString(response));
             List<String> metricId = new ArrayList<String>();
             metricId.add(metric);
 //			metricId.add("cpu_usage");

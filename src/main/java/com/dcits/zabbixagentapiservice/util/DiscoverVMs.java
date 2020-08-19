@@ -49,9 +49,9 @@ public class DiscoverVMs implements Action{
                     }
                 }
                 result.add("data", jsonArray);
-                logger.info(JSON.toJSONString(result));
+                logger.info(result.toString());
             }
         }
-        return JSON.toJSONString(result);
+        return result.toString();
     }
 }

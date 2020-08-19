@@ -7,6 +7,8 @@ public class ZabbixAgentQueryInfo {
     String username;
     //登录用户的密码
     String password;
+    //登录用户的密码
+    String version;
     //操作
     String action;
     //实例名称
@@ -36,6 +38,14 @@ public class ZabbixAgentQueryInfo {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public String getAction() {
