@@ -41,7 +41,7 @@ public class DiscoverVMs implements Action{
                     //忽略镜像
                     if (!vmInfo.getIsTemplate()) {
                         JsonObject jsonObject = new JsonObject();
-                        jsonObject.addProperty("{#VMNAME}", vmInfo.getName());
+                        jsonObject.addProperty("{#VMNAME}", vmInfo.getUuid());
                         //因uri和urn都含有特殊字符zabbix不支持，进行加密
 //						jsonObject.addProperty("{#VMURN}", Base64.getEncoder().encodeToString(vmInfo.getUrn().getBytes()));
 //						jsonObject.addProperty("{#VMURN}", vmInfo.getUrn().replace(":", "?"));
@@ -49,7 +49,7 @@ public class DiscoverVMs implements Action{
                     }
                 }
                 result.add("data", jsonArray);
-                logger.info(result.toString());
+                logger.debug(result.toString());
             }
         }
         return result.toString();

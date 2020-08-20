@@ -33,7 +33,7 @@ public class MonitorVM implements Action {
         QueryVmsReq queryVmsReq = new QueryVmsReq();
         queryVmsReq.setLimit(1);
         queryVmsReq.setOffset(0);
-        queryVmsReq.setName(instanceName);
+        queryVmsReq.setUuid(instanceName);
         // 获取VmResource接口的实现
         VmResource instance = ServiceFactory.getService(VmResource.class, clientProvider);
         FCSDKResponse<PageList<VmInfo>> response = instance.queryVMs(queryVmsReq, siteUri);
@@ -43,7 +43,7 @@ public class MonitorVM implements Action {
             if (response.getResult().getList().size()==0){
                 return String.valueOf(0);
             }
-            logger.info("VM INFO: "+ JSON.toJSONString(response));
+            logger.debug("VM INFO: "+ JSON.toJSONString(response));
             List<String> metricId = new ArrayList<String>();
             metricId.add(metric);
 //			metricId.add("cpu_usage");
@@ -63,10 +63,10 @@ public class MonitorVM implements Action {
             String value = queryObjectmetricResp.getResult().getItems().get(0).getValue().get(0).getMetricValue();
             if (value.isEmpty()) {
                 result = String.valueOf(Float.parseFloat("0"));
-                logger.info(String.valueOf(Float.parseFloat("0")));
+                logger.debug(String.valueOf(Float.parseFloat("0")));
             } else {
                 result = String.valueOf(Float.parseFloat(value));
-                logger.info(String.valueOf(Float.parseFloat(value)));
+                logger.debug(String.valueOf(Float.parseFloat(value)));
             }
         }
         return result;

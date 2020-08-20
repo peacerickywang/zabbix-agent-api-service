@@ -48,7 +48,7 @@ public class DiscoverHosts implements Action {
                     jsonArray.add(jsonObject);
                 }
                 result.add("data", jsonArray);
-                logger.info(jsonArray.toString());
+                logger.debug(jsonArray.toString());
             }
         }
         return result.toString();

@@ -39,7 +39,7 @@ public class ZabbixAgentRestService {
     @RequestMapping(value = "/discover", method = RequestMethod.PUT)
     @ResponseBody
     public String getDiscoverInfo(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo, HttpServletRequest request, HttpServletResponse response) {
-        logger.info("ACTION: "+zabbixAgentQueryInfo.getAction());
+        logger.info("ACTION: " + zabbixAgentQueryInfo.getAction());
         // 设定服务器配置
         ClientProviderBean clientProvider = new ClientProviderBean();
         // 设定服务器配置_设定服务器IP
@@ -49,13 +49,14 @@ public class ZabbixAgentRestService {
         clientProvider.setUserName(zabbixAgentQueryInfo.getUsername());
         clientProvider.setVersion(Float.parseFloat(zabbixAgentQueryInfo.getVersion()));
         // 初始化用户资源实例
-        AuthenticateResource auth = ServiceFactory.getService(AuthenticateResource.class,clientProvider);
+        AuthenticateResource auth = ServiceFactory.getService(AuthenticateResource.class, clientProvider);
         // 以用户名，用户密码作为传入参数，调用AuthenticateResource提供的login方法，完成用户的登录
         FCSDKResponse<LoginResp> resp = new FCSDKResponse<LoginResp>();
         try {
             resp = auth.login(zabbixAgentQueryInfo.getUsername(), new String(Base64.getDecoder().decode(zabbixAgentQueryInfo.getPassword()), "utf-8"));
             if (!resp.getErrorCode().equals(ERROR_CODE)) {
-                throw new Exception("登录失败，服务器连接认证失败！登陆信息：" + JSON.toJSONString(clientProvider));
+                logger.error("登录失败，服务器连接认证失败！登陆信息：" + JSON.toJSONString(clientProvider));
+                return null;
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -66,6 +67,7 @@ public class ZabbixAgentRestService {
         FCSDKResponse<List<SiteBasicInfo>> resps = site.querySites();
         if (!resps.getErrorCode().equals(ERROR_CODE)) {
             logger.error("获取站点信息失败！");
+            return null;
         }
         List<SiteBasicInfo> siteBasicInfoList = resps.getResult();
         Action targetAction = ActionFactory.getAction(zabbixAgentQueryInfo.getAction()).orElseThrow(() -> new IllegalArgumentException("Invalid Action"));
@@ -76,7 +78,7 @@ public class ZabbixAgentRestService {
     @RequestMapping(value = "/monitor", method = RequestMethod.PUT)
     @ResponseBody
     public float getMonitorInfo(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo, HttpServletRequest request, HttpServletResponse response) {
-        logger.info("ACTION: "+zabbixAgentQueryInfo.getAction()+" host: "+zabbixAgentQueryInfo.getInstanceName());
+        logger.info("ACTION: " + zabbixAgentQueryInfo.getAction() + " host: " + zabbixAgentQueryInfo.getInstanceName() + " metric: " + zabbixAgentQueryInfo.getMetric());
         // 设定服务器配置
         ClientProviderBean clientProvider = new ClientProviderBean();
         // 设定服务器配置_设定服务器IP
@@ -86,7 +88,7 @@ public class ZabbixAgentRestService {
         clientProvider.setUserName(zabbixAgentQueryInfo.getUsername());
         clientProvider.setVersion(Float.parseFloat(zabbixAgentQueryInfo.getVersion()));
         // 初始化用户资源实例
-        AuthenticateResource auth = ServiceFactory.getService(AuthenticateResource.class,clientProvider);
+        AuthenticateResource auth = ServiceFactory.getService(AuthenticateResource.class, clientProvider);
         // 以用户名，用户密码作为传入参数，调用AuthenticateResource提供的login方法，完成用户的登录
         FCSDKResponse<LoginResp> resp = new FCSDKResponse<LoginResp>();
         try {
@@ -103,6 +105,7 @@ public class ZabbixAgentRestService {
         FCSDKResponse<List<SiteBasicInfo>> resps = site.querySites();
         if (!resps.getErrorCode().equals(ERROR_CODE)) {
             logger.error("获取站点信息失败！");
+            return Float.parseFloat("0");
         }
         List<SiteBasicInfo> siteBasicInfoList = resps.getResult();
         Action targetAction = ActionFactory.getAction(zabbixAgentQueryInfo.getAction()).orElseThrow(() -> new IllegalArgumentException("Invalid Action"));

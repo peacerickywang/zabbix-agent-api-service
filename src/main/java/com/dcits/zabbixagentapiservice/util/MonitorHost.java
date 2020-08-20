@@ -66,10 +66,10 @@ public class MonitorHost implements Action{
             String value = queryObjectmetricResp.getResult().getItems().get(0).getValue().get(0).getMetricValue();
             if (value.isEmpty()) {
                 result = String.valueOf(Float.parseFloat("0"));
-                logger.info(String.valueOf(Float.parseFloat("0")));
+                logger.debug(String.valueOf(Float.parseFloat("0")));
             }else {
                 result = String.valueOf(Float.parseFloat(value));
-                logger.info(String.valueOf(Float.parseFloat(value)));
+                logger.debug(String.valueOf(Float.parseFloat(value)));
             }
         }
         return result;
