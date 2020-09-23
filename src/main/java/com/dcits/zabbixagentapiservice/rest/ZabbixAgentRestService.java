@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 @Service("ZabbixAgentRestService")
@@ -35,6 +34,7 @@ public class ZabbixAgentRestService {
      */
     public static String serverPort = "7443";
     private static Logger logger = LoggerFactory.getLogger(ZabbixAgentRestService.class);
+    private Map<String, ClientProviderBean> clientProviderBeanMap = new HashMap();
 
     @ApiOperation("获取zabbix自发现数据")
     @RequestMapping(value = "/discover", method = RequestMethod.PUT)
@@ -67,7 +67,7 @@ public class ZabbixAgentRestService {
         SiteResource site = ServiceFactory.getService(SiteResource.class, clientProvider);
         FCSDKResponse<List<SiteBasicInfo>> resps = site.querySites();
         if (!resps.getErrorCode().equals(ERROR_CODE)) {
-            logger.error("获取站点信息失败！");
+            logger.error("获取站点信息失败！登陆信息：" + JSON.toJSONString(clientProvider));
             return null;
         }
         List<SiteBasicInfo> siteBasicInfoList = resps.getResult();
@@ -81,32 +81,47 @@ public class ZabbixAgentRestService {
     public Callable<Float> getMonitorInfo(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo, HttpServletRequest request, HttpServletResponse response) {
         logger.info("ACTION: " + zabbixAgentQueryInfo.getAction() + " host: " + zabbixAgentQueryInfo.getInstanceName() + " metric: " + zabbixAgentQueryInfo.getMetric());
         Callable callable = () ->{
+            AuthenticateResource auth = null;
             // 设定服务器配置
             ClientProviderBean clientProvider = new ClientProviderBean();
-            // 设定服务器配置_设定服务器IP
-            clientProvider.setServerIp(zabbixAgentQueryInfo.getServerIP());
-            // 设定服务器配置_设定服务器端口号
-            clientProvider.setServerPort(serverPort);
-            clientProvider.setUserName(zabbixAgentQueryInfo.getUsername());
-            clientProvider.setVersion(Float.parseFloat(zabbixAgentQueryInfo.getVersion()));
-            // 初始化用户资源实例
-            AuthenticateResource auth = ServiceFactory.getService(AuthenticateResource.class, clientProvider);
-            // 以用户名，用户密码作为传入参数，调用AuthenticateResource提供的login方法，完成用户的登录
-            FCSDKResponse<LoginResp> resp = new FCSDKResponse<LoginResp>();
-            try {
-                resp = auth.login(zabbixAgentQueryInfo.getUsername(), new String(Base64.getDecoder().decode(zabbixAgentQueryInfo.getPassword()), "utf-8"));
-                if (!resp.getErrorCode().equals(ERROR_CODE)) {
-                    throw new Exception("登录失败，服务器连接认证失败！登陆信息：" + JSON.toJSONString(clientProvider));
+            //检查用户资源实例是否存在
+            if (clientProviderBeanMap.containsKey(zabbixAgentQueryInfo.getServerIP())) {
+                logger.info("已存在用户资源实例");
+                clientProvider = clientProviderBeanMap.get(zabbixAgentQueryInfo.getServerIP());
+            }else {
+                // 设定服务器配置_设定服务器IP
+                clientProvider.setServerIp(zabbixAgentQueryInfo.getServerIP());
+                // 设定服务器配置_设定服务器端口号
+                clientProvider.setServerPort(serverPort);
+                clientProvider.setUserName(zabbixAgentQueryInfo.getUsername());
+                clientProvider.setVersion(Float.parseFloat(zabbixAgentQueryInfo.getVersion()));
+                // 初始化用户资源实例
+                auth = ServiceFactory.getService(AuthenticateResource.class, clientProvider);
+                // 以用户名，用户密码作为传入参数，调用AuthenticateResource提供的login方法，完成用户的登录
+                FCSDKResponse<LoginResp> resp = new FCSDKResponse<LoginResp>();
+                try {
+                    resp = auth.login(zabbixAgentQueryInfo.getUsername(), new String(Base64.getDecoder().decode(zabbixAgentQueryInfo.getPassword()), "utf-8"));
+                    if (!resp.getErrorCode().equals(ERROR_CODE)) {
+                        logger.warn("删除用户资源实例");
+                        clientProviderBeanMap.remove(zabbixAgentQueryInfo.getServerIP());
+                        throw new Exception("登录失败，服务器连接认证失败！登陆信息：" + JSON.toJSONString(clientProvider));
+                    }else {
+                        clientProviderBeanMap.put(zabbixAgentQueryInfo.getServerIP(), clientProvider);
+                    }
+                } catch (Exception e) {
+                    logger.warn("删除用户资源实例");
+                    clientProviderBeanMap.remove(zabbixAgentQueryInfo.getServerIP());
+                    logger.error(e.getMessage());
+                    return Float.parseFloat("0");
                 }
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                return Float.parseFloat("0");
             }
             // 获取SiteResource接口的实现
             SiteResource site = ServiceFactory.getService(SiteResource.class, clientProvider);
             FCSDKResponse<List<SiteBasicInfo>> resps = site.querySites();
             if (!resps.getErrorCode().equals(ERROR_CODE)) {
-                logger.error("获取站点信息失败！");
+                logger.error("获取站点信息失败！登陆信息：" + JSON.toJSONString(clientProvider));
+                logger.warn("删除用户资源实例");
+                clientProviderBeanMap.remove(zabbixAgentQueryInfo.getServerIP());
                 return Float.parseFloat("0");
             }
             List<SiteBasicInfo> siteBasicInfoList = resps.getResult();
