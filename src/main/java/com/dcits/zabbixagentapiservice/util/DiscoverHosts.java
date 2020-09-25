@@ -1,5 +1,6 @@
 package com.dcits.zabbixagentapiservice.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
@@ -30,16 +31,35 @@ public class DiscoverHosts implements Action {
         HostResource service = ServiceFactory.getService(HostResource.class, clientProvider);
         QueryHostListReq req = new QueryHostListReq();
         req.setLimit(100);
-        req.setOffset(0);
         req.setResourceGroupFlag(1);
         req.setName("");
+        List<HostBasicInfo> hostBasicInfoList = new ArrayList<>();
+        int offset = 0;
+        int currentTotal = 0;
+        boolean errorFlag = false;
         for (SiteBasicInfo siteBasicInfo : siteBasicInfoList) {
-            FCSDKResponse<PageList<HostBasicInfo>> resp = service.queryHostList(siteBasicInfo.getUri(), req);
-            if (!resp.getErrorCode().equals(ERROR_CODE)) {
-                logger.error("QUERY HOSTs FAILED");
+            while (true) {
+                req.setOffset(offset);
+                FCSDKResponse<PageList<HostBasicInfo>> resp = service.queryHostList(siteBasicInfo.getUri(), req);
+                if (!resp.getErrorCode().equals(ERROR_CODE)) {
+                    errorFlag = true;
+                    logger.error("FusionCompute Host discover failed. Query info: "+JSON.toJSONString(clientProvider));
+                }
+                if (resp.getResult().getList().size() > 0) {
+                    hostBasicInfoList.addAll(resp.getResult().getList());
+                    currentTotal = currentTotal + resp.getResult().getList().size();
+                    if (resp.getResult().getTotal() <= currentTotal) {
+                        break;
+                    } else {
+                        offset = offset + 100;
+                    }
+                }
+            }
+            if (errorFlag) {
+                logger.error("FusionCompute Host discover failed. Query info: "+JSON.toJSONString(clientProvider));
             } else {
                 JsonArray jsonArray = new JsonArray();
-                for (HostBasicInfo hostBasicInfo : resp.getResult().getList()) {
+                for (HostBasicInfo hostBasicInfo : hostBasicInfoList) {
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("{#HOSTNAME}", hostBasicInfo.getName());
                     //因uri和urn都含有特殊字符zabbix不支持，进行替换
