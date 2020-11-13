@@ -42,8 +42,9 @@ public class ZabbixAgentRestService {
     @ApiOperation("获取zabbix自发现数据")
     @RequestMapping(value = "/discover", method = RequestMethod.PUT)
     @ResponseBody
-    public String getDiscoverInfo(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo, HttpServletRequest request, HttpServletResponse response) {
-        logger.info("ACTION: " + zabbixAgentQueryInfo.getAction());
+    public String getDiscoverInfo(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo) {
+        logger.info("ZabbixAgentQueryInfo:");
+        logger.info(JSON.toJSONString(zabbixAgentQueryInfo));
         // 设定服务器配置
         ClientProviderBean clientProvider = new ClientProviderBean();
         // 设定服务器配置_设定服务器IP
@@ -81,8 +82,9 @@ public class ZabbixAgentRestService {
     @ApiOperation("获取zabbix监控数据")
     @RequestMapping(value = "/monitor", method = RequestMethod.PUT)
     @ResponseBody
-    public Callable<Float> getMonitorInfo(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo, HttpServletRequest request, HttpServletResponse response) {
-        logger.info("ACTION: " + zabbixAgentQueryInfo.getAction() + " host: " + zabbixAgentQueryInfo.getInstanceName() + " metric: " + zabbixAgentQueryInfo.getMetric());
+    public Callable<Float> getMonitorInfo(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo) {
+        logger.info("ZabbixAgentQueryInfo:");
+        logger.info(JSON.toJSONString(zabbixAgentQueryInfo));
         Callable callable = () ->{
             AuthenticateResource auth = null;
             // 设定服务器配置
@@ -137,8 +139,9 @@ public class ZabbixAgentRestService {
     @ApiOperation("测试接口")
     @RequestMapping(value = "/test", method = RequestMethod.PUT)
     @ResponseBody
-    public String test(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo, HttpServletRequest request, HttpServletResponse response) {
-        logger.info("ACTION: test");
+    public String test(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo) {
+        logger.info("ZabbixAgentQueryInfo:");
+        logger.info(JSON.toJSONString(zabbixAgentQueryInfo));
         // 设定服务器配置
         ClientProviderBean clientProvider = new ClientProviderBean();
         // 设定服务器配置_设定服务器IP
