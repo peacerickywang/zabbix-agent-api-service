@@ -1,4 +1,4 @@
-package com.dcits.zabbixagentapiservice.model;
+package com.dcits.zabbixagentapiservice.Model;
 
 import lombok.Data;
 
@@ -18,4 +18,10 @@ public class ZabbixAgentQueryInfo {
     String instanceName;
     //监控项
     String metric;
+    //云资源类型
+    String managedCloudType;
+    //ctyun
+    String accessKey;
+    String secretKey;
+    String regionId;
 }

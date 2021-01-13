@@ -1,4 +1,10 @@
-package com.dcits.zabbixagentapiservice.util;
+package com.dcits.zabbixagentapiservice;
+
+
+import com.dcits.zabbixagentapiservice.Actions.DiscoverHosts;
+import com.dcits.zabbixagentapiservice.Actions.DiscoverVMs;
+import com.dcits.zabbixagentapiservice.Actions.MonitorHost;
+import com.dcits.zabbixagentapiservice.Actions.MonitorVM;
 
 import java.util.HashMap;
 import java.util.Map;

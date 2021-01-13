@@ -1,9 +1,12 @@
-package com.dcits.zabbixagentapiservice.util;
+package com.dcits.zabbixagentapiservice.Actions;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
+import com.dcits.zabbixagentapiservice.Action;
+import com.dcits.zabbixagentapiservice.Model.ZabbixAgentQueryInfo;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.huawei.esdk.fusioncompute.local.ServiceFactory;
@@ -72,6 +75,11 @@ public class DiscoverHosts implements Action {
             }
         }
         return result.toString();
+    }
+
+    @Override
+    public String doAction(ZabbixAgentQueryInfo zabbixAgentQueryInfo, String instanceName, String metric) throws IOException {
+        return null;
     }
 
 }
