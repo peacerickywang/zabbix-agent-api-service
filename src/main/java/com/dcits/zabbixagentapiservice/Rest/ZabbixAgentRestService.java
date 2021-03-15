@@ -35,4 +35,14 @@ public class ZabbixAgentRestService {
         ManagedCloud managedCloud = ManagedCloudFactory.getManagedCloud(zabbixAgentQueryInfo.getManagedCloudType()).orElseThrow(() -> new IllegalArgumentException("Invalid ManagedCloud"));
         return Float.parseFloat(managedCloud.doAction(zabbixAgentQueryInfo));
     }
+
+    @ApiOperation("获取zabbix监控数据测试接口")
+    @RequestMapping(value = "/monitor/test", method = RequestMethod.PUT)
+    @ResponseBody
+    public float getMonitorInfoTest(@RequestBody ZabbixAgentQueryInfo zabbixAgentQueryInfo) throws IOException {
+        logger.info("ZabbixAgentQueryInfo:");
+        logger.info(JSON.toJSONString(zabbixAgentQueryInfo));
+        ManagedCloud managedCloud = ManagedCloudFactory.getManagedCloud(zabbixAgentQueryInfo.getManagedCloudType()).orElseThrow(() -> new IllegalArgumentException("Invalid ManagedCloud"));
+        return Float.parseFloat(managedCloud.doAction(zabbixAgentQueryInfo));
+    }
 }

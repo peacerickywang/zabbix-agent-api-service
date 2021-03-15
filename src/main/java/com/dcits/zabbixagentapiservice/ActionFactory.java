@@ -1,10 +1,7 @@
 package com.dcits.zabbixagentapiservice;
 
 
-import com.dcits.zabbixagentapiservice.Actions.DiscoverHosts;
-import com.dcits.zabbixagentapiservice.Actions.DiscoverVMs;
-import com.dcits.zabbixagentapiservice.Actions.MonitorHost;
-import com.dcits.zabbixagentapiservice.Actions.MonitorVM;
+import com.dcits.zabbixagentapiservice.Actions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +15,7 @@ public class ActionFactory {
         actionMap.put("discover_vm", new DiscoverVMs());
         actionMap.put("monitor_vm", new MonitorVM());
         actionMap.put("monitor_host", new MonitorHost());
+        actionMap.put("query_monitor_vm", new QueryMonitorVM());
     }
 
     public static Optional<Action> getAction (String action){
